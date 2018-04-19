@@ -10,8 +10,8 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/coinigy/PureEngineIo/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/coinigy/PureEngineIo/master/PWSIcon.png</PackageIconUrl>
     <Authors>ByronP</Authors>
-    <Title>Pure EnginIo</Title>
-    <Company>Copyright 2018 Coinigy Inc.</Company>
+    <Title>Pure EngineIo</Title>
+    <Company>Coinigy Inc.</Company>
     <PackageTags>engineio, enginio, websocket, netstandard, core, client, websockets, io, engine</PackageTags>
     <PackageReleaseNotes>See git for list of changes.</PackageReleaseNotes>
     <Description>A cross platform EngineIo client library for .NET NetStandard core.</Description>

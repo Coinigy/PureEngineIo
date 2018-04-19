@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PureEngineIo", "PureEngineIo\PureEngineIo.csproj", "{CAD73111-C916-429A-AAB0-730F9EAAD23A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PureEngineIo", "PureEngineIo\PureEngineIo.csproj", "{CAD73111-C916-429A-AAB0-730F9EAAD23A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PureEngineIoTest", "PureEngineIoTest\PureEngineIoTest.csproj", "{7220A910-91A2-42F7-99A5-5F92E8238F12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PureEngineIoTest", "PureEngineIoTest\PureEngineIoTest.csproj", "{7220A910-91A2-42F7-99A5-5F92E8238F12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
