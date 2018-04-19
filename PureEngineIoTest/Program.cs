@@ -7,7 +7,7 @@ namespace PureEngineIoTest
     {
         static void Main(string[] args)
         {
-            var socket = new PureEngineIoSocket("ws://localhost");
+            var socket = new PureEngineIoSocket("https://streamer.cryptocompare.com/");
             socket.On(PureEngineIoSocket.EVENT_OPEN, () =>
             {
                 socket.On(PureEngineIoSocket.EVENT_MESSAGE, (data) =>
@@ -16,6 +16,8 @@ namespace PureEngineIoTest
                 });
             });
             socket.Open();
+
+            Console.ReadLine();
         }
     }
 }
