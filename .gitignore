@@ -252,3 +252,5 @@ paket-files/
 *.sln.iml
 src/PureWebSocketsTest/Properties/PublishProfiles/publish-module.psm1
 src/PureWebSocketsTest/Properties/PublishProfiles/local-publish.ps1
+
+*.zip
