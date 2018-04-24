@@ -16,6 +16,7 @@
     <PackageReleaseNotes>See git for list of changes.</PackageReleaseNotes>
     <Description>A cross platform EngineIo client library for .NET NetStandard core.</Description>
     <Copyright>Copyright 2018 Coinigy Inc.</Copyright>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -65,6 +65,11 @@ namespace PureEngineIo.Transports.WebSocketImp
             // only really needed for binary
             //TODO: logging
             Console.WriteLine("ws_DataReceived " + System.Text.Encoding.UTF8.GetString(data));
+            // TODO 
+            if (data.Length == 0)
+            {
+                return;
+            }
             OnData(data);
         }
 

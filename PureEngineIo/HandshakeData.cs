@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Runtime.Serialization;
 using Utf8Json;
 
@@ -10,7 +11,9 @@ namespace PureEngineIo
         public string Sid;
 
         [DataMember(Name = "upgrades")]
-        public ImmutableList<string> Upgrades = ImmutableList<string>.Empty;
+        //public ImmutableList<string> Upgrades = ImmutableList<string>.Empty;
+        // TODO !
+        public IList<string> Upgrades = ImmutableList<string>.Empty;
 
         [DataMember(Name = "pingInterval")]
         public long PingInterval;
