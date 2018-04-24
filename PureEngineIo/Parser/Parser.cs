@@ -12,7 +12,7 @@ namespace PureEngineIo.Parser
 
         public static void EncodePacket(Packet packet, IEncodeCallback callback) => packet.Encode(callback);
 
-        public static Packet DecodePacket(string data, bool utf8decode = false) => Packet.DecodePacket(data, utf8decode);
+        public static Packet DecodePacket(string data, bool utf8Decode = false) => Packet.DecodePacket(data, utf8Decode);
 
         public static Packet DecodePacket(byte[] data) => Packet.DecodePacket(data);
 

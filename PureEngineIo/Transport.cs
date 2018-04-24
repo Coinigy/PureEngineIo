@@ -24,18 +24,15 @@ namespace PureEngineIo
         private bool _writeable;
         public bool Writable
         {
-            get { return _writeable; }
-            set
+            get => _writeable;
+	        set
             {
-                //TODO: hook up to logger
-                Console.WriteLine(string.Format("Writable: {0} sid={1}", value, Socket.Id));
+				Logger.Log($"Writable: {value} sid={Socket.Id}");
                 _writeable = value;
             }
         }
 
-        public int MyProperty { get; set; }
-
-        public string Name;
+	    public string Name;
         public Dictionary<string, string> Query;
 
         protected bool Secure;
@@ -45,14 +42,14 @@ namespace PureEngineIo
         protected string Hostname;
         protected string TimestampParam;
         protected PureEngineIoSocket Socket;
-        protected bool Agent = false;
-        protected bool ForceBase64 = false;
-        protected bool ForceJsonp = false;
+        protected bool Agent;
+        protected bool ForceBase64;
+        protected bool ForceJsonp;
         protected string Cookie;
 
         protected Dictionary<string, string> ExtraHeaders;
 
-        internal protected ReadyStateEnum ReadyState = ReadyStateEnum.CLOSED;
+        protected internal ReadyStateEnum ReadyState = ReadyStateEnum.CLOSED;
 
         protected Transport(PureEngineIoTransportOptions options)
         {
@@ -71,21 +68,21 @@ namespace PureEngineIo
             ExtraHeaders = options.ExtraHeaders;
         }
 
-        internal protected Transport OnError(string message, Exception exception)
+        protected internal Transport OnError(string message, Exception exception)
         {
             Exception err = new PureEngineIOException(message, exception);
             Emit(EVENT_ERROR, err);
             return this;
         }
 
-        internal protected void OnOpen()
+        protected internal void OnOpen()
         {
             ReadyState = ReadyStateEnum.OPEN;
             Writable = true;
             Emit(EVENT_OPEN);
         }
 
-        internal protected void OnClose()
+        protected internal void OnClose()
         {
             ReadyState = ReadyStateEnum.CLOSED;
             Emit(EVENT_CLOSE);
@@ -95,7 +92,7 @@ namespace PureEngineIo
 
         protected virtual void OnData(byte[] data) => OnPacket(Parser.Parser.DecodePacket(data));
 
-        internal protected void OnPacket(Packet packet) => Emit(EVENT_PACKET, packet);
+        protected internal void OnPacket(Packet packet) => Emit(EVENT_PACKET, packet);
 
         public Transport Open()
         {
@@ -119,9 +116,8 @@ namespace PureEngineIo
 
         public Transport Send(ImmutableList<Packet> packets)
         {
-            //TODO: hook up to logger
-            Console.WriteLine("Send called with packets.Count: " + packets.Count);
-            var count = packets.Count;
+			Logger.Log("Send called with packets.Count: " + packets.Count);
+
             if (ReadyState == ReadyStateEnum.OPEN)
             {
                 //PollTasks.Exec((n) =>
@@ -131,8 +127,9 @@ namespace PureEngineIo
             }
             else
             {
+				Logger.Log("Transport not open");
                 throw new PureEngineIOException("Transport not open");
-                //log.Info("Transport not open");
+				
             }
             return this;
         }
@@ -141,6 +138,6 @@ namespace PureEngineIo
 
         protected abstract void DoClose();
 
-        internal protected abstract void Write(ImmutableList<Packet> packets);
+        protected internal abstract void Write(ImmutableList<Packet> packets);
     }
 }

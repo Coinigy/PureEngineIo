@@ -8,38 +8,37 @@ namespace PureEngineIo.Listeners
     internal class ProbingOnErrorListener : IListener
     {
         private readonly PureEngineIoSocket _socket;
-        internal readonly ImmutableList<Transport> _transport;
-        internal readonly IListener _freezeTransport;
+        internal readonly ImmutableList<Transport> Transport;
+        internal readonly IListener FreezeTransport;
 
         public ProbingOnErrorListener(PureEngineIoSocket socket, ImmutableList<Transport> transport, IListener freezeTransport)
         {
             _socket = socket;
-            _transport = transport;
-            _freezeTransport = freezeTransport;
+            Transport = transport;
+            FreezeTransport = freezeTransport;
         }
 
         void IListener.Call(params object[] args)
         {
             var err = args[0];
             PureEngineIOException error;
-            if (err is Exception)
+            if (err is Exception exception)
             {
-                error = new PureEngineIOException("probe error", (Exception)err);
+                error = new PureEngineIOException("probe error", exception);
             }
-            else if (err is string)
+            else if (err is string s)
             {
-                error = new PureEngineIOException("probe error: " + (string)err);
+                error = new PureEngineIOException("probe error: " + s);
             }
             else
             {
                 error = new PureEngineIOException("probe error");
             }
-            error.Transport = _transport[0].Name;
+            error.Transport = Transport[0].Name;
 
-            _freezeTransport.Call();
+            FreezeTransport.Call();
 
-            //TODO: logging
-            Console.WriteLine(string.Format("probe transport \"{0}\" failed because of error: {1}", error.Transport, err));
+			Logger.Log(new Exception($"probe transport \"{error.Transport}\" failed because of error: {err}"));
             _socket.Emit(PureEngineIoSocket.EVENT_UPGRADE_ERROR, error);
         }
 

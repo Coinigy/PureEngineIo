@@ -5,11 +5,11 @@ namespace PureEngineIo.Transports.PollingXHRImp
 {
     internal class SendEventSuccessListener : IListener
     {
-        private Action action;
+        private readonly Action _action;
 
-        public SendEventSuccessListener(Action action) => this.action = action;
+        public SendEventSuccessListener(Action action) => _action = action;
 
-        public void Call(params object[] args) => action?.Invoke();
+        public void Call(params object[] args) => _action?.Invoke();
 
         public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 

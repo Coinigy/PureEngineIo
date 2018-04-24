@@ -11,8 +11,6 @@ namespace PureEngineIo
         public string Sid;
 
         [DataMember(Name = "upgrades")]
-        //public ImmutableList<string> Upgrades = ImmutableList<string>.Empty;
-        // TODO !
         public IList<string> Upgrades = ImmutableList<string>.Empty;
 
         [DataMember(Name = "pingInterval")]
@@ -21,13 +19,6 @@ namespace PureEngineIo
         [DataMember(Name = "pingTimeout")]
         public long PingTimeout;
 
-        public HandshakeData()
-        {
-        }
-
-        internal static HandshakeData FromString(string data)
-        {
-            return JsonSerializer.Deserialize<HandshakeData>(data);
-        }
+        internal static HandshakeData FromString(string data) => JsonSerializer.Deserialize<HandshakeData>(data);
     }
 }

@@ -5,26 +5,26 @@ namespace PureEngineIo.Transports.PollingImp
 {
     internal class DecodePayloadCallback : IDecodePayloadCallback
     {
-        private Polling polling;
+        private readonly Polling _polling;
 
         public DecodePayloadCallback(Polling polling)
         {
-            this.polling = polling;
+            _polling = polling;
         }
         public bool Call(Packet packet, int index, int total)
         {
-            if (polling.ReadyState == ReadyStateEnum.OPENING)
+            if (_polling.ReadyState == ReadyStateEnum.OPENING)
             {
-                polling.OnOpen();
+                _polling.OnOpen();
             }
 
             if (packet.Type == Packet.CLOSE)
             {
-                polling.OnClose();
+                _polling.OnClose();
                 return false;
             }
 
-            polling.OnPacket(packet);
+            _polling.OnPacket(packet);
             return true;
         }
     }

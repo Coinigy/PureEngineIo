@@ -6,9 +6,7 @@ namespace PureEngineIo
     public class PureEngineIoOptions : PureEngineIoTransportOptions
     {
         public ImmutableList<string> Transports;
-
         public bool Upgrade = true;
-
         public bool RememberUpgrade;
         public string Host;
         public string QueryString;

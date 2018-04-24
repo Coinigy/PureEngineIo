@@ -4,8 +4,8 @@ namespace PureEngineIo.EmitterImp
 {
     public class OnceListener : IListener
     {
-        private static int id_counter = 0;
-        private int Id;
+        private static int _idCounter;
+        private readonly int _id;
         private readonly string _eventString;
         private readonly IListener _fn;
         private readonly Emitter _emitter;
@@ -15,7 +15,7 @@ namespace PureEngineIo.EmitterImp
             _eventString = eventString;
             _fn = fn;
             _emitter = emitter;
-            Id = id_counter++;
+            _id = _idCounter++;
         }
 
         void IListener.Call(params object[] args)
@@ -24,14 +24,8 @@ namespace PureEngineIo.EmitterImp
             _fn.Call(args);
         }
 
-        public int CompareTo(IListener other)
-        {
-            return GetId().CompareTo(other.GetId());
-        }
+        public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-        public int GetId()
-        {
-            return Id;
-        }
+	    public int GetId() => _id;
     }
 }

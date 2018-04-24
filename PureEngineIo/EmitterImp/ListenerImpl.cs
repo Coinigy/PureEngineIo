@@ -5,46 +5,39 @@ namespace PureEngineIo.EmitterImp
 {
     public class ListenerImpl : IListener
     {
-        private static int id_counter = 0;
-        private int Id;
-        private readonly Action fn1;
-        private readonly Action<object> fn;
+        private static int _idCounter;
+        private readonly int _id;
+        private readonly Action _fn1;
+        private readonly Action<object> _fn;
 
         public ListenerImpl(Action<object> fn)
         {
 
-            this.fn = fn;
-            Id = id_counter++;
+            _fn = fn;
+            _id = _idCounter++;
         }
 
         public ListenerImpl(Action fn)
         {
-
-            fn1 = fn;
-            Id = id_counter++;
+            _fn1 = fn;
+            _id = _idCounter++;
         }
 
         public void Call(params object[] args)
         {
-            if (fn != null)
+            if (_fn != null)
             {
                 var arg = args.Length > 0 ? args[0] : null;
-                fn(arg);
+                _fn(arg);
             }
             else
             {
-                fn1();
+                _fn1();
             }
         }
 
-        public int CompareTo(IListener other)
-        {
-            return GetId().CompareTo(other.GetId());
-        }
+        public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-        public int GetId()
-        {
-            return Id;
-        }
+	    public int GetId() => _id;
     }
 }

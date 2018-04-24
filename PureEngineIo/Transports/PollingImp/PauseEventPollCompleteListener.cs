@@ -5,20 +5,20 @@ namespace PureEngineIo.Transports.PollingImp
 {
     internal class PauseEventPollCompleteListener : IListener
     {
-        private int[] total;
-        private Action pause;
+        private readonly int[] _total;
+        private readonly Action _pause;
 
         public PauseEventPollCompleteListener(int[] total, Action pause)
         {
-            this.total = total;
-            this.pause = pause;
+            _total = total;
+            _pause = pause;
         }
 
         public void Call(params object[] args)
         {
-            if (--total[0] == 0)
+            if (--_total[0] == 0)
             {
-                pause();
+                _pause();
             }
         }
 

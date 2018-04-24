@@ -4,11 +4,11 @@ namespace PureEngineIo.Listeners
 {
     internal class EventCloseListener : IListener
     {
-        private PureEngineIoSocket socket;
+        private readonly PureEngineIoSocket _socket;
 
-        public EventCloseListener(PureEngineIoSocket socket) => this.socket = socket;
+        public EventCloseListener(PureEngineIoSocket socket) => _socket = socket;
 
-        public void Call(params object[] args) => socket.OnClose("transport close");
+        public void Call(params object[] args) => _socket.OnClose("transport close");
 
         public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 

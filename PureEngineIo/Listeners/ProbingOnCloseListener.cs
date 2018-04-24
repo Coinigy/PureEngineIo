@@ -4,9 +4,9 @@ namespace PureEngineIo.Listeners
 {
     internal class ProbingOnCloseListener : IListener
     {
-        internal IListener _onError;
+	    private readonly IListener _onError;
 
-        public ProbingOnCloseListener(ProbingOnErrorListener onError) => _onError = onError;
+        public ProbingOnCloseListener(IListener onError) => _onError = onError;
 
         void IListener.Call(params object[] args) => _onError.Call("socket closed");
 

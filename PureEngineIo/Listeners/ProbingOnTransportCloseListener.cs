@@ -4,9 +4,9 @@ namespace PureEngineIo.Listeners
 {
     internal class ProbingOnTransportCloseListener : IListener
     {
-        internal readonly IListener _onError;
+	    private readonly IListener _onError;
 
-        public ProbingOnTransportCloseListener(ProbingOnErrorListener onError) => _onError = onError;
+        public ProbingOnTransportCloseListener(IListener onError) => _onError = onError;
 
         void IListener.Call(params object[] args) => _onError.Call("transport closed");
 

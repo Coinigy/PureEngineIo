@@ -4,20 +4,20 @@ namespace PureEngineIo.Transports.PollingImp
 {
     public class SendEncodeCallback : IEncodeCallback
     {
-        private Polling polling;
+        private readonly Polling _polling;
 
         public SendEncodeCallback(Polling polling)
         {
-            this.polling = polling;
+            _polling = polling;
         }
 
         public void Call(object data)
         {
             var byteData = (byte[])data;
-            polling.DoWrite(byteData, () =>
+            _polling.DoWrite(byteData, () =>
             {
-                polling.Writable = true;
-                polling.Emit(Transport.EVENT_DRAIN);
+                _polling.Writable = true;
+                _polling.Emit(Transport.EVENT_DRAIN);
             });
         }
     }

@@ -4,19 +4,19 @@ namespace PureEngineIo.Transports.WebSocketImp
 {
     public class WriteEncodeCallback : IEncodeCallback
     {
-        private WebSocket webSocket;
+        private readonly WebSocket _webSocket;
 
-        public WriteEncodeCallback(WebSocket webSocket) => this.webSocket = webSocket;
+        public WriteEncodeCallback(WebSocket webSocket) => _webSocket = webSocket;
 
         public void Call(object data)
         {
-            if (data is string)
+            if (data is string s)
             {
-                webSocket.ws.Send((string)data);
+                _webSocket.Ws.Send(s);
             }
-            else if (data is byte[])
+            else if (data is byte[] bytes)
             {
-                webSocket.ws.Send((byte[])data);
+                _webSocket.Ws.Send(bytes);
             }
         }
     }

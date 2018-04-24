@@ -8,13 +8,13 @@ using System.Text.RegularExpressions;
 
 namespace PureEngineIo
 {
-    class Helpers
+	internal static class Helpers
     {
         public static string EncodeURIComponent(string str) => Uri.EscapeDataString(str);
 
         public static string DecodeURIComponent(string str) => Uri.UnescapeDataString(str);
 
-        public static string CallerName([CallerMemberName]string caller = "", [CallerLineNumber]int number = 0, [CallerFilePath]string path = "") => string.Format("{0}-{1}:{2}#{3}", path, path.Split('\\').LastOrDefault(), caller, number);
+        public static string CallerName([CallerMemberName]string caller = "", [CallerLineNumber]int number = 0, [CallerFilePath]string path = "") => $"{path}-{path.Split('\\').LastOrDefault()}:{caller}#{number}";
 
         public static string StripInvalidUnicodeCharacters(string str) => Regex.Replace(str, "([\ud800-\udbff](?![\udc00-\udfff]))|((?<![\ud800-\udbff])[\udc00-\udfff])", "");
 
@@ -50,24 +50,13 @@ namespace PureEngineIo
             return sb.ToString();
         }
 
-        public static Dictionary<string, string> DecodeQuerystring(string qs)
-        {
-            var qry = new Dictionary<string, string>();
-            var pairs = qs.Split('&');
-            for (int i = 0; i < pairs.Length; i++)
-            {
-                var pair = pairs[i].Split('=');
+        public static Dictionary<string, string> DecodeQuerystring(string qs) => qs.Split('&').Select(t => t.Split('=')).ToDictionary(pair => DecodeURIComponent(pair[0]), pair => DecodeURIComponent(pair[1]));
 
-                qry.Add(DecodeURIComponent(pair[0]), DecodeURIComponent(pair[1]));
-            }
-            return qry;
-        }
-
-        internal static byte[] StringToByteArray(string str)
+	    internal static byte[] StringToByteArray(string str)
         {
-            int len = str.Length;
+            var len = str.Length;
             var bytes = new byte[len];
-            for (int i = 0; i < len; i++)
+            for (var i = 0; i < len; i++)
             {
                 bytes[i] = (byte)str[i];
             }

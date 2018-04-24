@@ -6,15 +6,15 @@ namespace PureEngineIo.Transports.PollingImp
 {
     internal class CloseListener : IListener
     {
-        private Polling polling;
+        private readonly Polling _polling;
 
-        public CloseListener(Polling polling) => this.polling = polling;
+        public CloseListener(Polling polling) => _polling = polling;
 
         public void Call(params object[] args)
         {
-            ImmutableList<Packet> packets = ImmutableList<Packet>.Empty;
+            var packets = ImmutableList<Packet>.Empty;
             packets = packets.Add(new Packet(Packet.CLOSE));
-            polling.Write(packets);
+            _polling.Write(packets);
         }
 
         public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());

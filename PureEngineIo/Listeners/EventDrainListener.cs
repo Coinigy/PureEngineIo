@@ -4,11 +4,11 @@ namespace PureEngineIo.Listeners
 {
     internal class EventDrainListener : IListener
     {
-        private PureEngineIoSocket socket;
+        private readonly PureEngineIoSocket _socket;
 
-        public EventDrainListener(PureEngineIoSocket socket) => this.socket = socket;
+        public EventDrainListener(PureEngineIoSocket socket) => _socket = socket;
 
-        void IListener.Call(params object[] args) => socket.OnDrain();
+        void IListener.Call(params object[] args) => _socket.OnDrain();
 
         public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 

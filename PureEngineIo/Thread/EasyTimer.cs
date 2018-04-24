@@ -6,17 +6,14 @@ namespace PureEngineIo.Thread
 {
     internal class EasyTimer
     {
-        private CancellationTokenSource ts;
+        private readonly CancellationTokenSource _ts;
 
-        public EasyTimer(CancellationTokenSource ts)
-        {
-            this.ts = ts;
-        }
+		public EasyTimer(CancellationTokenSource ts) => _ts = ts;
 
-        public static EasyTimer SetTimeout(Action method, int delayInMilliseconds)
+		public static EasyTimer SetTimeout(Action method, int delayInMilliseconds)
         {
             var ts = new CancellationTokenSource();
-            CancellationToken ct = ts.Token;
+            var ct = ts.Token;
             var task = Task.Delay(delayInMilliseconds, ct);
             var awaiter = task.GetAwaiter();
 
@@ -37,23 +34,12 @@ namespace PureEngineIo.Thread
 
         public void Stop()
         {
-            //var log = LogManager.GetLogger(Global.CallerName());
-            //log.Info("EasyTimer stop");
-            if (ts != null)
-            {
-                ts.Cancel();
-            }
+	        Logger.Log("EasyTimer stop");
+	        _ts?.Cancel();
         }
 
+		public static void TaskRun(Action action) => Task.Run(action).Wait();
 
-        public static void TaskRun(Action action)
-        {
-            Task.Run(action).Wait();
-        }
-
-        public static void TaskRunNoWait(Action action)
-        {
-            Task.Run(action);
-        }
-    }
+		public static void TaskRunNoWait(Action action) => Task.Run(action);
+	}
 }

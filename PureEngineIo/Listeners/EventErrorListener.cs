@@ -5,11 +5,11 @@ namespace PureEngineIo.Listeners
 {
     internal class EventErrorListener : IListener
     {
-        private PureEngineIoSocket socket;
+        private readonly PureEngineIoSocket _socket;
 
-        public EventErrorListener(PureEngineIoSocket socket) => this.socket = socket;
+        public EventErrorListener(PureEngineIoSocket socket) => _socket = socket;
 
-        public void Call(params object[] args) => socket.OnError(args.Length > 0 ? (Exception)args[0] : null);
+        public void Call(params object[] args) => _socket.OnError(args.Length > 0 ? (Exception)args[0] : null);
 
         public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 

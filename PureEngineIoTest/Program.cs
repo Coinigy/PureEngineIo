@@ -98,7 +98,7 @@ namespace PureEngineIoTest
 
         static void TestSocket()
         {
-            var socket = new PureEngineIoSocket("localhost:3000");
+            var socket = new PureEngineIoSocket("localhost:3000", new PureEngineIoOptions(){DebugMode = true});
             AttachHandlers(socket);
 
             socket.Open();

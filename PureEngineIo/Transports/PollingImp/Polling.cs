@@ -1,5 +1,4 @@
-﻿using PureEngineIo.Interfaces;
-using PureEngineIo.Parser;
+﻿using PureEngineIo.Parser;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -9,54 +8,49 @@ namespace PureEngineIo.Transports.PollingImp
 {
     public class Polling : Transport
     {
-        public static readonly string NAME = "polling";
-        public static readonly string EVENT_POLL = "poll";
-        public static readonly string EVENT_POLL_COMPLETE = "pollComplete";
+        public const string NAME = "polling";
+        public const string EVENT_POLL = "poll";
+        public const string EVENT_POLL_COMPLETE = "pollComplete";
 
-        private bool IsPolling = false;
+        private bool _isPolling;
 
-        public Polling(PureEngineIoTransportOptions opts) : base(opts)
-        {
-            Name = NAME;
-        }
+		public Polling(PureEngineIoTransportOptions opts) : base(opts) => Name = NAME;
 
-        protected override void DoOpen()
-        {
-            Poll();
-        }
+		protected override void DoOpen() => Poll();
 
-        public void Pause(Action onPause)
+		public void Pause(Action onPause)
         {
             ReadyState = ReadyStateEnum.PAUSED;
-            Action pause = () =>
-            {
-                //log.Info("paused");
-                ReadyState = ReadyStateEnum.PAUSED;
-                onPause();
-            };
 
-            if (IsPolling || !Writable)
+	        void Action()
+	        {
+		        Logger.Log("paused");
+		        ReadyState = ReadyStateEnum.PAUSED;
+		        onPause();
+	        }
+
+	        if (_isPolling || !Writable)
             {
                 var total = new[] { 0 };
 
-                if (IsPolling)
+                if (_isPolling)
                 {
-                    //log.Info("we are currently polling - waiting to pause");
+                    Logger.Log("we are currently polling - waiting to pause");
                     total[0]++;
-                    Once(EVENT_POLL_COMPLETE, new PauseEventPollCompleteListener(total, pause));
+                    Once(EVENT_POLL_COMPLETE, new PauseEventPollCompleteListener(total, Action));
 
                 }
 
                 if (!Writable)
                 {
-                    //log.Info("we are currently writing - waiting to pause");
+                    Logger.Log("we are currently writing - waiting to pause");
                     total[0]++;
-                    Once(EVENT_DRAIN, new PauseEventDrainListener(total, pause));
+                    Once(EVENT_DRAIN, new PauseEventDrainListener(total, Action));
                 }
             }
             else
             {
-                pause();
+                Action();
             }
         }
 
@@ -68,40 +62,32 @@ namespace PureEngineIo.Transports.PollingImp
 
         private void Poll()
         {
-            IsPolling = true;
+            _isPolling = true;
             DoPoll();
             Emit(EVENT_POLL);
         }
 
-        protected override void OnData(string data)
-        {
-            _onData(data);
-        }
+		protected override void OnData(string data) => _onData(data);
 
-        protected override void OnData(byte[] data)
-        {
-            _onData(data);
-        }
+		protected override void OnData(byte[] data) => _onData(data);
 
-        private void _onData(object data)
+		private void _onData(object data)
         {
-            //TODO: logging
-            Console.WriteLine(string.Format("polling got data {0}", data));
+			Logger.Log($"polling got data {data}");
             var callback = new DecodePayloadCallback(this);
-            if (data is string)
+            if (data is string s)
             {
-                Parser.Parser.DecodePayload((string)data, callback);
+                Parser.Parser.DecodePayload(s, callback);
             }
-            else if (data is byte[])
+            else if (data is byte[] bytes)
             {
-                Parser.Parser.DecodePayload((byte[])data, callback);
+                Parser.Parser.DecodePayload(bytes, callback);
             }
 
             if (ReadyState != ReadyStateEnum.CLOSED)
             {
-                IsPolling = false;
-                //TODO: logging
-                Console.WriteLine("ReadyState != ReadyStateEnum.CLOSED");
+                _isPolling = false;
+				Logger.Log("ReadyState != ReadyStateEnum.CLOSED");
                 Emit(EVENT_POLL_COMPLETE);
 
                 if (ReadyState == ReadyStateEnum.OPEN)
@@ -110,8 +96,7 @@ namespace PureEngineIo.Transports.PollingImp
                 }
                 else
                 {
-                    //TODO: logging
-                    Console.WriteLine(string.Format("ignoring poll - transport state {0}", ReadyState));
+					Logger.Log($"ignoring poll - transport state {ReadyState}");
                 }
             }
         }
@@ -122,24 +107,21 @@ namespace PureEngineIo.Transports.PollingImp
 
             if (ReadyState == ReadyStateEnum.OPEN)
             {
-                //TODO: logging
-                Console.WriteLine("transport open - closing");
+				Logger.Log("transport open - closing");
                 closeListener.Call();
             }
             else
             {
-                // in case we're trying to close while
-                // handshaking is in progress (engine.io-client GH-164)
-                //TODO: logging
-                Console.WriteLine("transport not open - deferring close");
+				// in case we're trying to close while
+				// handshaking is in progress (engine.io-client GH-164)
+				Logger.Log("transport not open - deferring close");
                 Once(EVENT_OPEN, closeListener);
             }
         }
 
-        internal protected override void Write(ImmutableList<Packet> packets)
+        protected internal override void Write(ImmutableList<Packet> packets)
         {
-            // TODO: logging
-            Console.WriteLine("Write packets.Count = " + packets.Count);
+			Logger.Log("Write packets.Count = " + packets.Count);
 
             Writable = false;
 
@@ -150,32 +132,32 @@ namespace PureEngineIo.Transports.PollingImp
         public string Uri()
         {
             var query = new Dictionary<string, string>(Query);
-            string schema = Secure ? "https" : "http";
-            string portString = "";
+            var schema = Secure ? "https" : "http";
+            var portString = "";
 
             if (TimestampRequests)
             {
-                query.Add(TimestampParam, DateTime.Now.Ticks + "-" + Transport.Timestamps++);
+                query.Add(TimestampParam, DateTime.Now.Ticks + "-" + Timestamps++);
             }
 
             query.Add("b64", "1");
 
-            string _query = Helpers.EncodeQuerystring(query);
+            var encodedQuery = Helpers.EncodeQuerystring(query);
 
             if (Port > 0 && (("https" == schema && Port != 443)  || ("http" == schema && Port != 80)))
             {
                 portString = ":" + Port;
             }
 
-            if (_query.Length > 0)
+            if (encodedQuery.Length > 0)
             {
-                _query = "?" + _query;
+                encodedQuery = "?" + encodedQuery;
             }
 
-            return schema + "://" + Hostname + portString + Path + _query;
+            return schema + "://" + Hostname + portString + Path + encodedQuery;
         }
 
-        internal protected virtual void DoWrite(byte[] data, Action action)
+        protected internal virtual void DoWrite(byte[] data, Action action)
         {
         }
 

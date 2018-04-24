@@ -1,28 +1,26 @@
 ﻿using PureEngineIo.Interfaces;
-using System;
 using System.Collections.Immutable;
 
 namespace PureEngineIo.Listeners
 {
     internal class ProbingOnUpgradeListener : IListener
     {
-        internal readonly IListener _freezeTransport;
-        internal readonly ImmutableList<Transport> _transport;
+        internal readonly IListener FreezeTransport;
+        internal readonly ImmutableList<Transport> Transport;
 
-        public ProbingOnUpgradeListener(FreezeTransportListener freezeTransport, ImmutableList<Transport> transport)
+        public ProbingOnUpgradeListener(IListener freezeTransport, ImmutableList<Transport> transport)
         {
-            _freezeTransport = freezeTransport;
-            _transport = transport;
+            FreezeTransport = freezeTransport;
+            Transport = transport;
         }
 
         void IListener.Call(params object[] args)
         {
             var to = (Transport)args[0];
-            if (_transport[0] != null && to.Name != _transport[0].Name)
+            if (Transport[0] != null && to.Name != Transport[0].Name)
             {
-                //TODO: logging
-                Console.WriteLine(string.Format("'{0}' works - aborting '{1}'", to.Name, _transport[0].Name));
-                _freezeTransport.Call();
+				Logger.Log($"'{to.Name}' works - aborting '{Transport[0].Name}'");
+                FreezeTransport.Call();
             }
         }
 

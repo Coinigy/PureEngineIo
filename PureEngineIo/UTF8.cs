@@ -11,13 +11,13 @@ namespace PureEngineIo
     /// </remarks>
     public class UTF8
     {
-        private static List<int> byteArray;
-        private static int byteCount;
-        private static int byteIndex;
+        private static List<int> _byteArray;
+        private static int _byteCount;
+        private static int _byteIndex;
 
         public static string Encode(string str)
         {
-            List<int> codePoints = Ucs2Decode(str);
+            var codePoints = Ucs2Decode(str);
             var length = codePoints.Count;
             var index = -1;
             var byteString = new StringBuilder();
@@ -31,9 +31,9 @@ namespace PureEngineIo
 
         public static string Decode(string byteString)
         {
-            byteArray = Ucs2Decode(byteString);
-            byteCount = byteArray.Count;
-            byteIndex = 0;
+            _byteArray = Ucs2Decode(byteString);
+            _byteCount = _byteArray.Count;
+            _byteIndex = 0;
 
             var codePoints = new List<int>();
             int tmp;
@@ -52,18 +52,18 @@ namespace PureEngineIo
             int byte4;
             int codePoint;
 
-            if (byteIndex > byteCount)
+            if (_byteIndex > _byteCount)
             {
                 throw new UTF8Exception("Invalid byte index");
             }
 
-            if (byteIndex == byteCount)
+            if (_byteIndex == _byteCount)
             {
                 return -1;
             }
 
-            byte1 = byteArray[byteIndex] & 0xFF;
-            byteIndex++;
+            byte1 = _byteArray[_byteIndex] & 0xFF;
+            _byteIndex++;
 
             if ((byte1 & 0x80) == 0)
             {
@@ -93,10 +93,8 @@ namespace PureEngineIo
                 {
                     return codePoint;
                 }
-                else
-                {
-                    throw new UTF8Exception("Invalid continuation byte");
-                }
+
+	            throw new UTF8Exception("Invalid continuation byte");
             }
 
             if ((byte1 & 0xF8) == 0xF0)
@@ -116,13 +114,13 @@ namespace PureEngineIo
 
         private static int ReadContinuationByte()
         {
-            if (byteIndex >= byteCount)
+            if (_byteIndex >= _byteCount)
             {
                 throw new UTF8Exception("Invalid byte index");
             }
 
-            int continuationByte = byteArray[byteIndex] & 0xFF;
-            byteIndex++;
+            var continuationByte = _byteArray[_byteIndex] & 0xFF;
+            _byteIndex++;
 
             if ((continuationByte & 0xC0) == 0x80)
             {
@@ -163,12 +161,9 @@ namespace PureEngineIo
             return sb.ToString();
         }
 
-        private static char CreateByte(int codePoint, int shift)
-        {
-            return (char)(((codePoint >> shift) & 0x3F) | 0x80);
-        }
+        private static char CreateByte(int codePoint, int shift) => (char)(((codePoint >> shift) & 0x3F) | 0x80);
 
-        private static List<int> Ucs2Decode(string str)
+	    private static List<int> Ucs2Decode(string str)
         {
             var output = new List<int>();
             var counter = 0;

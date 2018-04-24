@@ -6,7 +6,7 @@ namespace PureEngineIo.Transports.PollingXHRImp
 {
     public class PollingXHR : Polling
     {
-        private XHRRequest sendXhr;
+        private XHRRequest _sendXhr;
 
         public PollingXHR(PureEngineIoTransportOptions options) : base(options)
         {
@@ -32,60 +32,38 @@ namespace PureEngineIo.Transports.PollingXHRImp
 
         private class EventRequestHeadersListener : IListener
         {
-            private PollingXHR pollingXHR;
+            private readonly PollingXHR pollingXHR;
 
-            public EventRequestHeadersListener(PollingXHR pollingXHR)
-            {
-                this.pollingXHR = pollingXHR;
-            }
+			public EventRequestHeadersListener(PollingXHR pollingXHR) => this.pollingXHR = pollingXHR;
 
-            public void Call(params object[] args)
+			public void Call(params object[] args)
             {
                 // Never execute asynchronously for support to modify headers.
                 pollingXHR.Emit(EVENT_RESPONSE_HEADERS, args[0]);
             }
 
-            public int CompareTo(IListener other)
-            {
-                return this.GetId().CompareTo(other.GetId());
-            }
+			public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-            public int GetId()
-            {
-                return 0;
-            }
-        }
+			public int GetId() => 0;
+		}
 
         private class EventResponseHeadersListener : IListener
         {
-            private PollingXHR pollingXHR;
+            private readonly PollingXHR _pollingXhr;
 
-            public EventResponseHeadersListener(PollingXHR pollingXHR)
-            {
-                this.pollingXHR = pollingXHR;
-            }
+			public EventResponseHeadersListener(PollingXHR pollingXHR) => _pollingXhr = pollingXHR;
 
-            public void Call(params object[] args)
-            {
-                pollingXHR.Emit(EVENT_REQUEST_HEADERS, args[0]);
-            }
+			public void Call(params object[] args) => _pollingXhr.Emit(EVENT_REQUEST_HEADERS, args[0]);
 
-            public int CompareTo(IListener other)
-            {
-                return this.GetId().CompareTo(other.GetId());
-            }
+			public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-            public int GetId()
-            {
-                return 0;
-            }
-        }
+			public int GetId() => 0;
+		}
 
-        internal protected override void DoWrite(byte[] data, Action action)
+        protected internal override void DoWrite(byte[] data, Action action)
         {
             var opts = new RequestOptions { Method = "POST", Data = data, CookieHeaderValue = Cookie };
-            //TODO: logging
-            Console.WriteLine("DoWrite data = " + data);
+			Logger.Log("DoWrite data = " + data);
             //try
             //{
             //    var dataString = BitConverter.ToString(data);
@@ -96,81 +74,61 @@ namespace PureEngineIo.Transports.PollingXHRImp
             //    log.Error(e);
             //}
 
-            sendXhr = Request(opts);
-            sendXhr.On(EVENT_SUCCESS, new SendEventSuccessListener(action));
-            sendXhr.On(EVENT_ERROR, new SendEventErrorListener(this));
-            sendXhr.Create();
+            _sendXhr = Request(opts);
+            _sendXhr.On(EVENT_SUCCESS, new SendEventSuccessListener(action));
+            _sendXhr.On(EVENT_ERROR, new SendEventErrorListener(this));
+            _sendXhr.Create();
         }
 
         protected override void DoPoll()
         {
-            //TODO: logging
-            Console.WriteLine("xhr poll");
+			Logger.Log("xhr poll");
             var opts = new RequestOptions { CookieHeaderValue = Cookie };
-            sendXhr = Request(opts);
-            sendXhr.On(EVENT_DATA, new DoPollEventDataListener(this));
-            sendXhr.On(EVENT_ERROR, new DoPollEventErrorListener(this));
-            //sendXhr.Create();
-            sendXhr.Create();
+            _sendXhr = Request(opts);
+            _sendXhr.On(EVENT_DATA, new DoPollEventDataListener(this));
+            _sendXhr.On(EVENT_ERROR, new DoPollEventErrorListener(this));
+            _sendXhr.Create();
         }
 
         private class DoPollEventDataListener : IListener
         {
-            private PollingXHR pollingXHR;
+            private readonly PollingXHR pollingXHR;
 
-            public DoPollEventDataListener(PollingXHR pollingXHR)
-            {
-                this.pollingXHR = pollingXHR;
-            }
+			public DoPollEventDataListener(PollingXHR pollingXHR) => this.pollingXHR = pollingXHR;
 
-            public void Call(params object[] args)
+			public void Call(params object[] args)
             {
                 var arg = args.Length > 0 ? args[0] : null;
-                if (arg is string)
+                if (arg is string s)
                 {
-                    pollingXHR.OnData((string)arg);
+                    pollingXHR.OnData(s);
                 }
-                else if (arg is byte[])
+                else if (arg is byte[] bytes)
                 {
-                    pollingXHR.OnData((byte[])arg);
+                    pollingXHR.OnData(bytes);
                 }
             }
 
-            public int CompareTo(IListener other)
-            {
-                return this.GetId().CompareTo(other.GetId());
-            }
+			public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-            public int GetId()
-            {
-                return 0;
-            }
-        }
+			public int GetId() => 0;
+		}
 
         private class DoPollEventErrorListener : IListener
         {
-            private PollingXHR pollingXHR;
+            private readonly PollingXHR pollingXHR;
 
-            public DoPollEventErrorListener(PollingXHR pollingXHR)
-            {
-                this.pollingXHR = pollingXHR;
-            }
+			public DoPollEventErrorListener(PollingXHR pollingXHR) => this.pollingXHR = pollingXHR;
 
-            public void Call(params object[] args)
+			public void Call(params object[] args)
             {
                 var err = args.Length > 0 && args[0] is Exception ? (Exception)args[0] : null;
                 pollingXHR.OnError("xhr poll error", err);
             }
 
-            public int CompareTo(IListener other)
-            {
-                return this.GetId().CompareTo(other.GetId());
-            }
+			public int CompareTo(IListener other) => GetId().CompareTo(other.GetId());
 
-            public int GetId()
-            {
-                return 0;
-            }
-        }
+			public int GetId() => 0;
+		}
     }
 }

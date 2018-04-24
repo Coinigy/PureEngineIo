@@ -5,7 +5,7 @@ namespace PureEngineIo.Exceptions
     class PureEngineIOException : Exception
     {
         public string Transport;
-        public object code;
+        public object Code;
 
         public PureEngineIOException(string message) : base(message) { }
 

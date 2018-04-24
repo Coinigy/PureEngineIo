@@ -4,8 +4,10 @@ using System.Collections.Immutable;
 
 namespace PureEngineIo.EmitterImp
 {
-    /// <remarks>
+    /// <summary>
     /// The event emitter which is ported from the JavaScript module.
+    /// </summary>
+    /// <remarks>
     /// <see href="https://github.com/component/emitter">https://github.com/component/emitter</see>
     /// </remarks>
     public class Emitter
@@ -28,8 +30,7 @@ namespace PureEngineIo.EmitterImp
                 try
                 {
                     //handle in try/catch the emit
-                    ImmutableList<IListener> callbacksLocal = callbacks[eventString];
-                    foreach (var fn in callbacksLocal)
+                    foreach (var fn in callbacks[eventString])
                     {
                         fn.Call(args);
                     }
@@ -51,7 +52,7 @@ namespace PureEngineIo.EmitterImp
             {
                 callbacks = callbacks.Add(eventString, ImmutableList<IListener>.Empty);
             }
-            ImmutableList<IListener> callbacksLocal = callbacks[eventString];
+            var callbacksLocal = callbacks[eventString];
             callbacksLocal = callbacksLocal.Add(fn);
             callbacks = callbacks.Remove(eventString).Add(eventString, callbacksLocal);
             return this;
@@ -118,8 +119,7 @@ namespace PureEngineIo.EmitterImp
             {
                 if (!callbacks.TryGetValue(eventString, out ImmutableList<IListener> retrievedValue))
                 {
-                    //TODO: attach to logger
-                    Console.WriteLine(string.Format("Emitter.Off Could not remove {0}", eventString));
+                    Logger.Log($"Emitter.Off Could not remove {eventString}");
                 }
 
                 if (retrievedValue != null)
@@ -152,8 +152,8 @@ namespace PureEngineIo.EmitterImp
             {
                 if (callbacks.ContainsKey(eventString))
                 {
-                    ImmutableList<IListener> callbacksLocal = callbacks[eventString];
-                    _onceCallbacks.TryGetValue(fn, out IListener offListener);
+                    var callbacksLocal = callbacks[eventString];
+                    _onceCallbacks.TryGetValue(fn, out var offListener);
                     _onceCallbacks = _onceCallbacks.Remove(fn);
 
                     if (callbacksLocal.Count > 0 && callbacksLocal.Contains(offListener ?? fn))
@@ -181,7 +181,7 @@ namespace PureEngineIo.EmitterImp
         {
             if (callbacks.ContainsKey(eventString))
             {
-                ImmutableList<IListener> callbacksLocal = callbacks[eventString];
+                var callbacksLocal = callbacks[eventString];
                 return callbacksLocal ?? ImmutableList<IListener>.Empty;
             }
             return ImmutableList<IListener>.Empty;

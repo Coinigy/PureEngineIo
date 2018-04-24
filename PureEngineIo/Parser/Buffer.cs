@@ -1,4 +1,6 @@
-﻿namespace PureEngineIo.Parser
+﻿using System.Linq;
+
+namespace PureEngineIo.Parser
 {
     internal class Buffer
     {
@@ -9,13 +11,9 @@
 
         public static byte[] Concat(byte[][] list)
         {
-            int length = 0;
-            foreach (var buf in list)
-            {
-                length += buf.Length;
-            }
+            var length = list.Sum(buf => buf.Length);
 
-            return Concat(list, length);
+	        return Concat(list, length);
         }
 
         public static byte[] Concat(byte[][] list, int length)
@@ -29,7 +27,7 @@
                 return list[0];
             }
 
-            ByteBuffer buffer = ByteBuffer.Allocate(length);
+            var buffer = ByteBuffer.Allocate(length);
             foreach (var buf in list)
             {
                 buffer.Put(buf);

@@ -6,34 +6,23 @@ namespace PureEngineIo.Parser
     public class ByteBuffer
     {
         private readonly MemoryStream _memoryStream;
-
-        private long _limit = 0;
-
+        private long _limit;
 
         public ByteBuffer(int length)
         {
-            this._memoryStream = new MemoryStream();
+            _memoryStream = new MemoryStream();
             _memoryStream.SetLength(length);
             _memoryStream.Capacity = length;
             _limit = length;
         }
 
-        public static ByteBuffer Allocate(int length)
-        {
-            return new ByteBuffer(length);
-        }
+        public static ByteBuffer Allocate(int length) => new ByteBuffer(length);
 
-        internal void Put(byte[] buf)
-        {
-            _memoryStream.Write(buf, 0, buf.Length);
-        }
+		internal void Put(byte[] buf) => _memoryStream.Write(buf, 0, buf.Length);
 
-        internal byte[] Array()
-        {
-            return _memoryStream.ToArray();
-        }
+		internal byte[] Array() => _memoryStream.ToArray();
 
-        internal static ByteBuffer Wrap(byte[] data)
+	    internal static ByteBuffer Wrap(byte[] data)
         {
             var result = new ByteBuffer(data.Length);
             result.Put(data);
@@ -44,12 +33,9 @@ namespace PureEngineIo.Parser
         /// A buffer's capacity is the number of elements it contains. The capacity of a 
         /// buffer is never negative and never changes.
         /// </summary>
-        public int Capacity
-        {
-            get { return _memoryStream.Capacity; }
-        }
+        public int Capacity => _memoryStream.Capacity;
 
-        /// <summary>
+	    /// <summary>
         /// Absolute get method. Reads the byte at the given index.
         /// </summary>
         /// <param name="index">The index from which the byte will be read</param>
@@ -102,29 +88,23 @@ namespace PureEngineIo.Parser
         /// </summary>
         /// <param name="dst"></param>
         /// <returns>This buffer</returns>
-        internal ByteBuffer Get(byte[] dst)
-        {
-            return Get(dst, 0, dst.Length);
-        }
+        internal ByteBuffer Get(byte[] dst) => Get(dst, 0, dst.Length);
 
-        /// <summary>
-        /// Sets this buffer's position. If the mark is defined and larger than the new 
-        /// position then it is discarded.       
-        /// </summary>
-        /// <param name="newPosition">The new position value; must be non-negative and no larger than the current limit</param>
-        internal void Position(long newPosition)
-        {
-            _memoryStream.Position = newPosition;
-        }
+		/// <summary>
+		/// Sets this buffer's position. If the mark is defined and larger than the new 
+		/// position then it is discarded.       
+		/// </summary>
+		/// <param name="newPosition">The new position value; must be non-negative and no larger than the current limit</param>
+		internal void Position(long newPosition) => _memoryStream.Position = newPosition;
 
-        /// <summary>
-        /// Sets this buffer's limit. If the position is larger than the new limit then it is set to the new limit. 
-        /// If the mark is defined and larger than the new limit then it is discarded.
-        /// 
-        /// A buffer's limit is the index of the first element that should not be read or written. A buffer's limit is never negative and is never greater than its capacity.
-        /// </summary>
-        /// <param name="newLimit">The new limit value; must be non-negative and no larger than this buffer's capacity</param>
-        internal void Limit(long newLimit)
+		/// <summary>
+		/// Sets this buffer's limit. If the position is larger than the new limit then it is set to the new limit. 
+		/// If the mark is defined and larger than the new limit then it is discarded.
+		/// 
+		/// A buffer's limit is the index of the first element that should not be read or written. A buffer's limit is never negative and is never greater than its capacity.
+		/// </summary>
+		/// <param name="newLimit">The new limit value; must be non-negative and no larger than this buffer's capacity</param>
+		internal void Limit(long newLimit)
         {
             _limit = newLimit;
             if (_memoryStream.Position > newLimit)
@@ -137,12 +117,9 @@ namespace PureEngineIo.Parser
         /// Returns the number of elements between the current position and the limit.
         /// </summary>
         /// <returns>The number of elements remaining in this buffer</returns>
-        internal long Remaining()
-        {
-            return (_limit - _memoryStream.Position);
-        }
+        internal long Remaining() => _limit - _memoryStream.Position;
 
-        /// <summary>
+	    /// <summary>
         /// Clears this buffer. The position is set to zero, the limit is set to the capacity, and the mark is discarded.
         /// 
         /// This method does not actually erase the data in the buffer, but it is named as if 

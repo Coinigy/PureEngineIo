@@ -10,25 +10,25 @@ namespace PureEngineIo.Transports.PollingXHRImp
 {
     public class XHRRequest : Emitter
     {
-        private string Method;
-        private string Uri;
-        private byte[] Data;
-        private string CookieHeaderValue;
-        private Dictionary<string, string> ExtraHeaders;
+        private readonly string _method;
+        private readonly string _uri;
+        private readonly byte[] _data;
+        private readonly string _cookieHeaderValue;
+        private readonly Dictionary<string, string> _extraHeaders;
 
         public XHRRequest(RequestOptions options)
         {
-            Method = options.Method ?? "GET";
-            Uri = options.Uri;
-            Data = options.Data;
-            CookieHeaderValue = options.CookieHeaderValue;
-            ExtraHeaders = options.ExtraHeaders;
+            _method = options.Method ?? "GET";
+            _uri = options.Uri;
+            _data = options.Data;
+            _cookieHeaderValue = options.CookieHeaderValue;
+            _extraHeaders = options.ExtraHeaders;
         }
 
         public void Create()
         {
-            var httpMethod = Method == "POST" ? HttpMethod.Post : HttpMethod.Get;
-            var dataToSend = Data == null ? Encoding.UTF8.GetBytes("") : Data;
+            var httpMethod = _method == "POST" ? HttpMethod.Post : HttpMethod.Get;
+            var dataToSend = _data ?? Encoding.UTF8.GetBytes("");
 
             Task.Run(async () =>
             {
@@ -45,31 +45,31 @@ namespace PureEngineIo.Transports.PollingXHRImp
                         {
                             using (var httpContent = new ByteArrayContent(dataToSend))
                             {
-                                if (Method == "POST")
+                                if (_method == "POST")
                                 {
                                     httpContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
                                 }
 
-                                var request = new HttpRequestMessage(httpMethod, Uri)
+                                var request = new HttpRequestMessage(httpMethod, _uri)
                                 {
                                     Content = httpContent
                                 };
 
-                                if (!string.IsNullOrEmpty(CookieHeaderValue))
+                                if (!string.IsNullOrEmpty(_cookieHeaderValue))
                                 {
-                                    httpContent.Headers.Add(@"Cookie", CookieHeaderValue);
+                                    httpContent.Headers.Add(@"Cookie", _cookieHeaderValue);
                                 }
-                                if (ExtraHeaders != null)
+                                if (_extraHeaders != null)
                                 {
-                                    foreach (var header in ExtraHeaders)
+                                    foreach (var header in _extraHeaders)
                                     {
                                         httpContent.Headers.Add(header.Key, header.Value);
                                     }
                                 }
 
-                                if (Method == "GET")
+                                if (_method == "GET")
                                 {
-                                    using (HttpResponseMessage response = await client.GetAsync(request.RequestUri))
+                                    using (var response = await client.GetAsync(request.RequestUri))
                                     {
                                         var responseContent = await response.Content.ReadAsStringAsync();
                                         OnData(responseContent);
@@ -77,7 +77,7 @@ namespace PureEngineIo.Transports.PollingXHRImp
                                 }
                                 else
                                 {
-                                    using (HttpResponseMessage response = await client.SendAsync(request))
+                                    using (var response = await client.SendAsync(request))
                                     {
                                         response.EnsureSuccessStatusCode();
                                         var contentType = response.Content.Headers.GetValues("Content-Type").Aggregate("", (acc, x) => acc + x).Trim();
