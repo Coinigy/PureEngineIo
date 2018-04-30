@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.Serialization;
-using Utf8Json;
 
 namespace PureEngineIo
 {
@@ -19,6 +18,6 @@ namespace PureEngineIo
         [DataMember(Name = "pingTimeout")]
         public long PingTimeout;
 
-        internal static HandshakeData FromString(string data) => JsonSerializer.Deserialize<HandshakeData>(data);
+        internal static HandshakeData FromString(string data) => PureEngineIoSocket.Options.Serializer.Deserialize<HandshakeData>(data);
     }
 }

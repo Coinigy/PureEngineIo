@@ -34,104 +34,71 @@ namespace PureEngineIo
 
 		public static bool PriorWebsocketSuccess;
 
-		internal bool Secure;
-		internal bool Upgrade;
-		internal bool TimestampRequests;
 		internal bool Upgrading;
-		internal bool RememberUpgrade;
-		internal int Port;
-		internal int PolicyPort;
 		internal int PrevBufferLen;
 		internal long PingInterval;
 		internal long PingTimeout;
 		public string Id;
-		internal string Hostname;
-		internal string Path;
-		internal string TimestampParam;
 		internal ImmutableList<string> Transports;
 		internal ImmutableList<string> Upgrades;
-		internal Dictionary<string, string> Query;
 		internal ImmutableList<Packet> WriteBuffer = ImmutableList<Packet>.Empty;
 		internal ImmutableList<Action> CallbackBuffer = ImmutableList<Action>.Empty;
-		internal Dictionary<string, string> Cookies;
 
 		public Transport Transport;
 		private EasyTimer _pingTimeoutTimer;
 		private EasyTimer _pingIntervalTimer;
 
 		internal ReadyStateEnum ReadyState;
-		internal bool Agent;
-		internal bool ForceBase64;
-		internal bool ForceJsonp;
-		internal static bool Debug;
-
-
-		public Dictionary<string, string> ExtraHeaders;
-
-		public PureEngineIoSocket() : this(new PureEngineIoOptions())
-		{
-		}
-
-		public PureEngineIoSocket(string uri) : this(uri, null)
-		{
-		}
+		internal static PureEngineIoOptions Options;
 
 		public PureEngineIoSocket(string uri, PureEngineIoOptions options) : this(uri == null ? null : String2Uri(uri), options)
 		{
+			if(Options.Serializer == null)
+				Options.Serializer = new Utf8JsonSerializer();
 		}
 
 		private static Uri String2Uri(string uri) => uri.StartsWith("http") || uri.StartsWith("ws") ? new Uri(uri) : new Uri("http://" + uri);
 
 		public PureEngineIoSocket(Uri uri, PureEngineIoOptions options) : this(uri == null ? options : PureEngineIoOptions.FromURI(uri, options))
 		{
+			if (Options.Serializer == null)
+				Options.Serializer = new Utf8JsonSerializer();
 		}
 
 		public PureEngineIoSocket(PureEngineIoOptions options)
 		{
-			Debug = options.DebugMode;
+			if (Options.Serializer == null)
+				Options.Serializer = new Utf8JsonSerializer();
 
-			if (options.Host != null)
+			Options = options;
+			
+			if (Options.Host != null)
 			{
 				var pieces = options.Host.Split(':');
-				options.Hostname = pieces[0];
+				Options.Hostname = pieces[0];
 				if (pieces.Length > 1)
 				{
-					options.Port = int.Parse(pieces[pieces.Length - 1]);
+					Options.Port = int.Parse(pieces[pieces.Length - 1]);
 				}
 			}
 
-			Secure = options.Secure;
-			Hostname = options.Hostname;
-			Port = options.Port;
-			Query = options.QueryString != null ? Helpers.DecodeQuerystring(options.QueryString) : new Dictionary<string, string>();
+			if(Options.Query == null || Options.Query.Count  <= 0)
+				Options.Query = Options.QueryString != null ? Helpers.DecodeQuerystring(Options.QueryString) : new Dictionary<string, string>();
 
-			if (options.Query != null)
-			{
-				foreach (var item in options.Query)
-				{
-					Query.Add(item.Key, item.Value);
-				}
-			}
-
-			Upgrade = options.Upgrade;
-			Path = (options.Path ?? "/engine.io").Replace("/$", "") + "/";
-			TimestampParam = (options.TimestampParam ?? "t");
-			TimestampRequests = options.TimestampRequests;
-			Transports = options.Transports ?? ImmutableList<string>.Empty.Add(Polling.NAME).Add(WebSocket.NAME);
-			PolicyPort = options.PolicyPort != 0 ? options.PolicyPort : 843;
-			RememberUpgrade = options.RememberUpgrade;
-			Cookies = options.Cookies;
+			Options.Path = (Options.Path ?? "/engine.io").Replace("/$", "") + "/";
+			Options.TimestampParam = (Options.TimestampParam ?? "t");
+			Options.Transports = Options.Transports ?? ImmutableList<string>.Empty.Add(Polling.NAME).Add(WebSocket.NAME);
+			Options.PolicyPort = Options.PolicyPort != 0 ? Options.PolicyPort : 843;
 			//if (options.IgnoreServerCertificateValidation)
 			//{
 			//    ServerCertificate.IgnoreServerCertificateValidation();
 			//}
-			ExtraHeaders = options.ExtraHeaders;
 		}
 
 		public PureEngineIoSocket Open()
 		{
 			string transportName;
-			if (RememberUpgrade && PriorWebsocketSuccess && Transports.Contains(WebSocket.NAME))
+			if (Options.RememberUpgrade && PriorWebsocketSuccess && Transports.Contains(WebSocket.NAME))
 			{
 				transportName = WebSocket.NAME;
 			}
@@ -154,27 +121,27 @@ namespace PureEngineIo
 
 		internal Transport CreateTransport(string name)
 		{
-			var query = new Dictionary<string, string>(Query) {{"EIO", Parser.Parser.Protocol.ToString()}, {"transport", name}};
+			var query = new Dictionary<string, string>(Options.Query) {{"EIO", Parser.Parser.Protocol.ToString()}, {"transport", name}};
 			if (Id != null)
 			{
 				query.Add("sid", Id);
 			}
 			var options = new PureEngineIoTransportOptions
 			{
-				Hostname = Hostname,
-				Port = Port,
-				Secure = Secure,
-				Path = Path,
+				Hostname = Options.Hostname,
+				Port = Options.Port,
+				Secure = Options.Secure,
+				Path = Options.Path,
 				Query = query,
-				TimestampRequests = TimestampRequests,
-				TimestampParam = TimestampParam,
-				PolicyPort = PolicyPort,
+				TimestampRequests = Options.TimestampRequests,
+				TimestampParam = Options.TimestampParam,
+				PolicyPort = Options.PolicyPort,
 				Socket = this,
-				Agent = Agent,
-				ForceBase64 = ForceBase64,
-				ForceJsonp = ForceJsonp,
-				Cookies = Cookies,
-				ExtraHeaders = ExtraHeaders
+				Agent = Options.Agent,
+				ForceBase64 = Options.ForceBase64,
+				ForceJsonp = Options.ForceJsonp,
+				Cookies = Options.Cookies,
+				ExtraHeaders = Options.ExtraHeaders
 			};
 
 			if (name == WebSocket.NAME)
@@ -427,7 +394,7 @@ namespace PureEngineIo
 			Emit(EVENT_OPEN);
 
 
-			if (ReadyState == ReadyStateEnum.OPEN && Upgrade && Transport is Polling)
+			if (ReadyState == ReadyStateEnum.OPEN && Options.Upgrade && Transport is Polling)
 			//if (ReadyState == ReadyStateEnum.OPEN && Upgrade && this.Transport)
 			{
 				Logger.Log("OnOpen starting upgrade probes");

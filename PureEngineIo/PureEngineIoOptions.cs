@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using PureEngineIo.Interfaces;
 
 namespace PureEngineIo
 {
@@ -10,8 +11,9 @@ namespace PureEngineIo
         public bool RememberUpgrade;
         public string Host;
         public string QueryString;
+	    public ISerializer Serializer { get; set; }
 
-        public static PureEngineIoOptions FromURI(Uri uri, PureEngineIoOptions opts)
+		public static PureEngineIoOptions FromURI(Uri uri, PureEngineIoOptions opts)
         {
             if (opts == null)
             {
@@ -21,6 +23,8 @@ namespace PureEngineIo
             opts.Host = uri.Host;
             opts.Secure = uri.Scheme == "https" || uri.Scheme == "wss";
             opts.Port = uri.Port;
+
+			opts.Serializer = new Utf8JsonSerializer(); 
 
             if (!string.IsNullOrEmpty(uri.Query))
             {

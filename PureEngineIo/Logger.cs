@@ -7,13 +7,13 @@ namespace PureEngineIo
     {
 		internal static void Log(string message, [CallerMemberName] string memberName = "")
 		{
-			if(PureEngineIoSocket.Debug)
+			if(PureEngineIoSocket.Options.DebugMode)
 				OutputConsole.WriteLine(memberName + " " + message, ConsoleColor.Blue);
 		}
 
 		internal static void Log(Exception ex, [CallerMemberName] string memberName = "")
 		{
-			if (PureEngineIoSocket.Debug)
+			if (PureEngineIoSocket.Options.DebugMode)
 				OutputConsole.WriteLine(memberName + " " + ex.Message, ConsoleColor.Red);
 		}
 	}

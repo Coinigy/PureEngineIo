@@ -8,18 +8,18 @@ namespace PureEngineIo
 {
     public class PureEngineIoTransportOptions : IPureWebSocketOptions
     {
-        public bool Agent = false;
-        public bool ForceBase64 = false;
-        public bool ForceJsonp = false;
+        public bool Agent;
+        public bool ForceBase64;
+        public bool ForceJsonp;
         public string Hostname;
         public string Path;
         public string TimestampParam;
-        public bool Secure = false;
+        public bool Secure;
         public bool TimestampRequests = true;
         public int Port;
         public int PolicyPort;
         public Dictionary<string, string> Query;
-        public bool IgnoreServerCertificateValidation = false;
+        public bool IgnoreServerCertificateValidation;
         internal PureEngineIoSocket Socket;
         public Dictionary<string, string> Cookies = new Dictionary<string, string>();
         public Dictionary<string, string> ExtraHeaders = new Dictionary<string, string>();
